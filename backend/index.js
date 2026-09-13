@@ -10,8 +10,10 @@ await connectDB();
 
 const app = express();
 
+app.use(express.json()); // to accept json data
+
 // using routes
-app.use("api/v1", userRoutes);
+app.use("/api/v1", userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
