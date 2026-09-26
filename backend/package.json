@@ -20,6 +20,8 @@
     "mongo-sanitize": "^1.1.0",
     "mongodb": "^7.5.0",
     "mongoose": "^9.9.1",
+    "nodemailer": "^10.0.10",
+    "redis": "^6.2.1",
     "zod": "^4.6.4"
   },
   "devDependencies": {
