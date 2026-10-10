@@ -9,6 +9,7 @@ import crypto from "crypto";
 import sendMail from "../config/sendMail.js";
 import { getVerifyEmailHtml } from "../config/html.js";
 import { getOtpHtml } from "../config/html.js";
+import { generateToken } from "../config/generateToken.js";
 
 export const registerUser = TryCatch(async (req, res) => {
     const sanitizedBody = sanitize(req.body);
@@ -111,10 +112,11 @@ export const verifyUser = TryCatch(async (req, res) => {
 export const loginUser = TryCatch(async (req, res) => {
     const sanitizedBody = sanitize(req.body);
     const validation = loginSchema.safeParse(sanitizedBody);
+    // Login input validation
     if (!validation.success) {
         const zodError = validation.error;
 
-        lletfirstErrorMessage = "Validation Error";
+        let firstErrorMessage = "Validation Error";
         let allErrors = [];
 
         if (zodError?.issues && Array.isArray(zodError.issues)) {
@@ -134,12 +136,18 @@ export const loginUser = TryCatch(async (req, res) => {
 
     const { email, password } = validation.data;
 
+    // Login rate-limit recovery and enforcement
     const rateLimitKey = `login-rate-limit:${req.ip}: ${email}`;
 
     if (await redisClient.get(rateLimitKey)) {
-        return res.status(429).json({
-            message: "Too many request. Please try again later",
-        })
+        const rateLimitTtl = await redisClient.ttl(rateLimitKey);
+        if (rateLimitTtl === -1) {
+            await redisClient.del(rateLimitKey);
+        } else if (rateLimitTtl !== -2) {
+            return res.status(429).json({
+                message: "Too many requests. Please try again later.",
+            })
+        }
     }
 
     const user = await User.findOne({ email });
@@ -169,8 +177,9 @@ export const loginUser = TryCatch(async (req, res) => {
     const html = getOtpHtml({ email, otp });
 
     await sendMail({ email, subject, html });
+    // Expire the login cooldown after 60 seconds; Redis option names are case-sensitive.
     await redisClient.set(rateLimitKey, "true", {
-        Ex: 60,
+        EX: 60,
     });
 
     res.json({
@@ -209,5 +218,10 @@ export const verifyOtp = TryCatch(async (req, res) => {
 
     let user = await User.findOne({email});
 
-    
+    const tokenData = await generateToken(user._id, res);
+
+    res.status(200).json({
+        message: "Welcome ${user.name}",
+        user,
+    })
 })
