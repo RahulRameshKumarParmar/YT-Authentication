@@ -112,11 +112,10 @@ export const verifyUser = TryCatch(async (req, res) => {
 export const loginUser = TryCatch(async (req, res) => {
     const sanitizedBody = sanitize(req.body);
     const validation = loginSchema.safeParse(sanitizedBody);
-    // Login input validation
     if (!validation.success) {
         const zodError = validation.error;
 
-        let firstErrorMessage = "Validation Error";
+        lletfirstErrorMessage = "Validation Error";
         let allErrors = [];
 
         if (zodError?.issues && Array.isArray(zodError.issues)) {
@@ -136,18 +135,12 @@ export const loginUser = TryCatch(async (req, res) => {
 
     const { email, password } = validation.data;
 
-    // Login rate-limit recovery and enforcement
     const rateLimitKey = `login-rate-limit:${req.ip}: ${email}`;
 
     if (await redisClient.get(rateLimitKey)) {
-        const rateLimitTtl = await redisClient.ttl(rateLimitKey);
-        if (rateLimitTtl === -1) {
-            await redisClient.del(rateLimitKey);
-        } else if (rateLimitTtl !== -2) {
-            return res.status(429).json({
-                message: "Too many requests. Please try again later.",
-            })
-        }
+        return res.status(429).json({
+            message: "Too many request. Please try again later",
+        })
     }
 
     const user = await User.findOne({ email });
@@ -177,9 +170,8 @@ export const loginUser = TryCatch(async (req, res) => {
     const html = getOtpHtml({ email, otp });
 
     await sendMail({ email, subject, html });
-    // Expire the login cooldown after 60 seconds; Redis option names are case-sensitive.
     await redisClient.set(rateLimitKey, "true", {
-        EX: 60,
+        Ex: 60,
     });
 
     res.json({
