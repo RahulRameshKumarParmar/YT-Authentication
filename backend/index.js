@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import userRoutes from './routes/user.js'; 
 import {createClient} from "redis";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 dotenv.config();
 
@@ -26,6 +27,11 @@ const app = express();
 
 app.use(express.json()); // to accept json data
 app.use(cookieParser()); // to accept cookies
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+}));
 
 // using routes
 app.use("/api/v1", userRoutes);
