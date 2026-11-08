@@ -115,7 +115,7 @@ export const loginUser = TryCatch(async (req, res) => {
     if (!validation.success) {
         const zodError = validation.error;
 
-        lletfirstErrorMessage = "Validation Error";
+        let firstErrorMessage = "Validation Error";
         let allErrors = [];
 
         if (zodError?.issues && Array.isArray(zodError.issues)) {
@@ -171,7 +171,7 @@ export const loginUser = TryCatch(async (req, res) => {
 
     await sendMail({ email, subject, html });
     await redisClient.set(rateLimitKey, "true", {
-        Ex: 60,
+        EX: 60,
     });
 
     res.json({

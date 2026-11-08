@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
+import Home from '../src/pages/Home';
+import Login from '../src/pages/Login';
+import VerifyOtp from '../src/pages/VerifyOtp';
 import {ToastContainer} from "react-toastify";
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/verifyotp" element={<VerifyOtp />} />
         </Routes>
         <ToastContainer/>
       </ BrowserRouter>

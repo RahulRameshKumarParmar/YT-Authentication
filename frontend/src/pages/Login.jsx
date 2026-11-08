@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from "react"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { server } from "../main.jsx"
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -10,6 +10,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [btnLoading, setBtnLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   const submitHandeler = async (e) => {
     setBtnLoading(true);
     e.preventDefault();
@@ -18,10 +20,12 @@ export default function Login() {
         email,
         password
       });
-      toast(data.message);
+      toast.success(data.message);
+      localStorage.setItem("email", email);
+      navigate("/verifyotp");
     }
     catch (error) {
-      toast(error.response.data.message);
+      toast.error(error.response.data.message);
     }
     finally {
       setBtnLoading(false);
