@@ -3,7 +3,7 @@ import { redisClient } from "../index.js";
 
 export const generateToken = async (id, res) => {
     const accessToken = jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: "15m",
+        expiresIn: "1m",
     });
 
     const refreshToken = jwt.sign({ id }, process.env.REFRESH_SECRET, {
@@ -17,14 +17,14 @@ export const generateToken = async (id, res) => {
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
-        maxAge: 15 * 60 * 1000,
+        sameSite: "none",
+        maxAge: 1 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
