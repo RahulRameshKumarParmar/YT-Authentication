@@ -1,10 +1,36 @@
 import React, { useState } from 'react'
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import axios from "axios";
+import { server } from "../main.jsx";
 
 export default function VerifyOtp() {
   const [otp, setOtp] = useState("");
+  const [btnLoading, setBtnLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    
+  const navigate = useNavigate();
+
+  const submitHandeler = async (e) => {
+    setBtnLoading(true);
+    e.preventDefault();
+
+    const email = localStorage.getItem("email");
+    try {
+      const { data } = await axios.post(`${server}/api/v1/verify`, {
+        email,
+        otp
+      }, {
+        withCredentials: true,
+      });
+      toast(data.message);
+      localStorage.clear("email");
+    }
+    catch (error) {
+      toast.error(error.response.data.message);
+    }
+    finally {
+      setBtnLoading(false);
+    }
   }
   return (
     <section className="text-gray-400 bg-gray-900 body-font">
@@ -14,7 +40,7 @@ export default function VerifyOtp() {
           <p className="leading-relaxed mt-4">Poke slow-carb mixtape knausgaard, typewriter street art gentrify hammock starladder roathse. Craies vegan tousled etsy austin.</p>
         </div>
         <form onSubmit={submitHandeler} className="lg:w-2/6 md:w-1/2 bg-gray-800 bg-opacity-50 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
-          <h2 className="text-white text-lg font-medium title-font mb-5">Sign Up</h2>
+          <h2 className="text-white text-lg text-center font-medium title-font mb-5">OTP Verify</h2>
           <div className="relative mb-4">
             <label htmlFor="otp" className="leading-7 text-sm text-gray-400">OTP</label>
             <input type="number" id="otp" name="otp"
@@ -28,7 +54,7 @@ export default function VerifyOtp() {
             className="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">{
               btnLoading ? "Submitting..." : "Button"
             }</button>
-          <Link to={"/login"} className="text-xs mt-3">Go to login page</Link>
+          <Link to={"/login"} className="text-xs mt-3 text-center hover:text-gray-300">Go to login page</Link>
         </form>
       </div>
     </section>

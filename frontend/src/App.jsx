@@ -13,6 +13,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verifyotp" element={<VerifyOtp />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
         <ToastContainer/>
       </ BrowserRouter>
