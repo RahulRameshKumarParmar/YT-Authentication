@@ -11,7 +11,7 @@ export const AppProvider = ({ children }) => {
     const fetchUser = async () => {
         setLoading(true);
         try {
-            const { data } = await api.get(`/api/vi/me`)
+            const { data } = await api.get(`/api/vi/me`);
 
             setUser(data)
             setIsAuth(true)

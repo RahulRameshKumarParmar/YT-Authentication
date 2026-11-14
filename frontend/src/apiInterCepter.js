@@ -25,7 +25,7 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 }
 
-api.interceptors.response.use((response) => response, async () => {
+api.interceptors.response.use((response) => response, async (error) => {
     const originalRequest = error.config;
 
     if(error.response?.status === 403 && !originalRequest._retry){
@@ -43,7 +43,7 @@ api.interceptors.response.use((response) => response, async () => {
         try {
             await api.post("/api/v1/refresh");
             processQueue(null);
-            return spi(originalRequest);
+            return api(originalRequest);
         } 
         catch (error) {
             processQueue(error, null)
