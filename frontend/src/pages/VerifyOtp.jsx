@@ -24,6 +24,7 @@ export default function VerifyOtp() {
       });
       toast(data.message);
       localStorage.clear("email");
+      setOtp("");
     }
     catch (error) {
       toast.error(error.response.data.message);
@@ -54,7 +55,18 @@ export default function VerifyOtp() {
             className="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">{
               btnLoading ? "Submitting..." : "Button"
             }</button>
-          <Link to={"/login"} className="text-xs mt-3 text-center hover:text-gray-300">Go to login page</Link>
+          <div className='flex items-center justify-around mt-4'>
+            <Link to={"/login"} className="text-xs text-center hover:text-gray-300">Go to login page</Link>
+
+            <button
+              type="button"
+              className="text-xs font-medium text-blue-600
+                hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed
+                disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+            >Resend OTP
+            </button>
+          </div>
+
         </form>
       </div>
     </section>

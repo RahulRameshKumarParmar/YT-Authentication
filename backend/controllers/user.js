@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import sendMail from "../config/sendMail.js";
 import { getVerifyEmailHtml, getOtpHtml } from "../config/html.js";
-import { generateToken } from "../config/generateToken.js";
+import { generateAccessToken, generateToken } from "../config/generateToken.js";
 import {verifyRefreshToken, revokeRefreshToken} from "../config/generateToken.js";
 
 export const registerUser = TryCatch(async (req, res) => {

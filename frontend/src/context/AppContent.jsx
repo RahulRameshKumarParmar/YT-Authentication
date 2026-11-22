@@ -8,10 +8,10 @@ export const AppProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [isAuth, setIsAuth] = useState(false);
 
-    const fetchUser = async () => {
+    async function fetchUser () {
         setLoading(true);
         try {
-            const { data } = await api.get(`/api/vi/me`);
+            const { data } = await api.get(`/api/v1/me`);
 
             setUser(data)
             setIsAuth(true)

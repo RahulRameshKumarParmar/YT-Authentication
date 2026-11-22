@@ -10,7 +10,7 @@ export const generateToken = async (id, res) => {
         expiresIn: "7d",
     });
 
-    const refreshTokenKey = `refresh:${id}`;
+    const refreshTokenKey = `refresh_token:${id}`;
 
     await redisClient.setEx(refreshTokenKey, 7 * 24 * 60 * 60, refreshToken);
 
@@ -55,7 +55,7 @@ export const generateAccessToken = (id, res) => {
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: 1 * 60 * 1000,
     });
 }
