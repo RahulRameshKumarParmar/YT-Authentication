@@ -9,7 +9,7 @@ import crypto from "crypto";
 import sendMail from "../config/sendMail.js";
 import { getVerifyEmailHtml, getOtpHtml } from "../config/html.js";
 import { generateAccessToken, generateToken } from "../config/generateToken.js";
-import {verifyRefreshToken, revokeRefreshToken} from "../config/generateToken.js";
+import { verifyRefreshToken, revokeRefreshToken } from "../config/generateToken.js";
 
 export const registerUser = TryCatch(async (req, res) => {
     const sanitizedBody = sanitize(req.body);
@@ -180,10 +180,31 @@ export const loginUser = TryCatch(async (req, res) => {
 
 })
 
-export const verifyOtp = TryCatch(async (req, res) => {
-    const {email, otp} = req.body;
+export const resendOtp = TryCatch(async (req, res) => {
+    let otpSendedCount = 0;
+    ++otpSendedCount;
+    if(otpSendedCount > 3){
+        return res.status(404).json({
+            message: "Resend otp attempts are exhausted"
+        })
+    }
+    
+    const { email } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await redisClient.set(otpKey, JSON.stringify(otp), {
+        EX: 300,
+    });
 
-    if(!email || !otp){
+    const subject = "Resend OTP For Veification";
+    const html = getOtpHtml({ email, otp });
+    await sendMail({email, subject, html});
+    
+})
+
+export const verifyOtp = TryCatch(async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
         return res.status(400).json({
             message: "Please provide all details",
         });
@@ -192,7 +213,7 @@ export const verifyOtp = TryCatch(async (req, res) => {
     const otpKey = `otp: ${email}`;
     const storedOtpString = await redisClient.get(otpKey);
 
-    if(!storedOtpString){
+    if (!storedOtpString) {
         return res.status(400).json({
             message: "Otp expired",
         });
@@ -200,7 +221,7 @@ export const verifyOtp = TryCatch(async (req, res) => {
 
     const storedOtp = JSON.parse(storedOtpString);
 
-    if(storedOtp !== otp){
+    if (storedOtp !== otp) {
         return res.status(400).json({
             message: "Invalid OTP",
         })
@@ -208,7 +229,7 @@ export const verifyOtp = TryCatch(async (req, res) => {
 
     await redisClient.del(otpKey);
 
-    let user = await User.findOne({email});
+    let user = await User.findOne({ email });
 
     const tokenData = await generateToken(user._id, res);
 
@@ -226,7 +247,7 @@ export const myProfile = TryCatch(async (req, res) => {
 export const refreshToken = TryCatch(async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
 
-    if(!refreshToken){
+    if (!refreshToken) {
         return res.status(401).json({
             message: "Invalid Refresh Token",
         })
@@ -234,7 +255,7 @@ export const refreshToken = TryCatch(async (req, res) => {
 
     const decode = await verifyRefreshToken(refreshToken);
 
-    if(!decode){
+    if (!decode) {
         return res.status(401).json({
             message: "Invalid refresh token",
         })
